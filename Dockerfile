@@ -4,6 +4,12 @@
 
 FROM ubuntu:20.04
 
+# Install SSH server and ADB
+RUN apt-get update && \
+    apt-get -y install openssh-server adb && \
+    apt-get clean && \
+    rm -rf /var/cache/apt/* /var/lib/apt/lists/*
+
 # Sneak the stf executable into $PATH.
 ENV PATH /app/bin:$PATH
 
@@ -72,7 +78,7 @@ RUN set -x && \
     find /tmp -mindepth 1 ! -regex '^/tmp/hsperfdata_root\(/.*\)?' -delete
 
 # Switch to the app user.
-USER stf
+USER root
 
 # Show help by default.
-CMD stf --help
+CMD service ssh start && stf --help
