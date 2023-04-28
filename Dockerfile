@@ -51,6 +51,14 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
       https://github.com/google/bundletool/releases/download/1.2.0/bundletool-all-1.2.0.jar && \
     mv bundletool-all-1.2.0.jar bundletool.jar
 
+# Configure ssh server
+RUN echo 'stf:stf' | chpasswd && \
+    mkdir /var/run/sshd && \
+    echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config && \
+    echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config && \
+    echo 'AllowUsers stf' >> /etc/ssh/sshd_config
+
+
 # Copy app source.
 COPY . /tmp/build/
 
@@ -80,5 +88,7 @@ RUN set -x && \
 # Switch to the app user.
 USER root
 
-# Show help by default.
-CMD service ssh start && stf --help
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+CMD ["/start.sh"]
+
