@@ -4,9 +4,9 @@
 
 FROM ubuntu:20.04
 
-# Install SSH server and ADB
+# Install SSH server and ADB and supervisord
 RUN apt-get update && \
-    apt-get -y install openssh-server adb && \
+    apt-get -y install openssh-server adb supervisor && \
     apt-get clean && \
     rm -rf /var/cache/apt/* /var/lib/apt/lists/*
 
@@ -88,7 +88,10 @@ RUN set -x && \
 # Switch to the app user.
 USER root
 
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
-CMD ["/start.sh"]
+# Setup supervisord to manage ssh server
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# Run stf command as entrypoint
+# ENTRYPOINT ["stf", "--help"]
+
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
